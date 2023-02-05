@@ -10,7 +10,6 @@ import {
     ImageBackground,
     TouchableWithoutFeedback,
     Keyboard,
-    Button,
 } from "react-native";
 
 const backgroundImage = require("../assets/images/background.jpg");
@@ -19,7 +18,7 @@ const initialUserData = {
     password: "",
 };
 
-export const LoginScreen = () => {
+export const LoginScreen = ({ navigation }) => {
     const [isShowKeyboard, setIsShowKeyboard] = useState(false);
     const [userData, setUserData] = useState(initialUserData);
     const [securePassword, setSecurePassword] = useState(true);
@@ -121,9 +120,16 @@ export const LoginScreen = () => {
                                     <Text style={styles.btnLabel}>Log In</Text>
                                 </TouchableOpacity>
 
-                                <Text style={styles.text}>
-                                    Do not have an account? Register
-                                </Text>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        navigation.navigate("Register");
+                                    }}
+                                    activeOpacity={0.7}
+                                >
+                                    <Text style={styles.text}>
+                                        Do not have an account? Register
+                                    </Text>
+                                </TouchableOpacity>
                             </>
                         )}
                     </View>
@@ -140,11 +146,8 @@ const styles = StyleSheet.create({
     },
 
     image: {
-        position: "absolute",
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0,
+        flex: 1,
+        justifyContent: "flex-end",
     },
 
     form: {
