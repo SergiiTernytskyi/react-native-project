@@ -12,13 +12,17 @@ import {
     Keyboard,
 } from "react-native";
 
-const backgroundImage = require("../assets/images/background.jpg");
+import { AntDesign } from "@expo/vector-icons";
+
+const backgroundImage = require("../../assets/images/background.jpg");
 const initialUserData = {
+    login: "",
     email: "",
     password: "",
 };
 
-export const LoginScreen = ({ navigation }) => {
+export const RegistrationScreen = ({ navigation }) => {
+    console.log(Platform.OS);
     const [isShowKeyboard, setIsShowKeyboard] = useState(false);
     const [userData, setUserData] = useState(initialUserData);
     const [securePassword, setSecurePassword] = useState(true);
@@ -42,7 +46,7 @@ export const LoginScreen = ({ navigation }) => {
         Keyboard.dismiss();
     };
 
-    const loginHandler = () => {
+    const registerHandler = () => {
         hideKeyboard();
         console.log(userData);
         setUserData(initialUserData);
@@ -54,26 +58,47 @@ export const LoginScreen = ({ navigation }) => {
 
     return (
         <TouchableWithoutFeedback onPress={hideKeyboard}>
-            <ImageBackground
-                source={backgroundImage}
-                style={styles.image}
-                resizeMode="cover"
-            >
-                <View style={styles.container}>
-                    <View style={styles.form}>
-                        <KeyboardAvoidingView
-                            behavior={
-                                Platform.OS === "ios" ? "padding" : "height"
-                            }
+            <View style={styles.container}>
+                <ImageBackground source={backgroundImage} style={styles.image}>
+                    <KeyboardAvoidingView
+                        behavior={Platform.OS === "ios" ? "padding" : ""}
+                        keyboardVerticalOffset={0}
+                    >
+                        <View
                             style={{
-                                marginBottom: isShowKeyboard ? 32 : 44,
+                                ...styles.form,
+                                paddingBottom: isShowKeyboard ? 32 : 78,
                             }}
                         >
-                            <Text style={styles.title}>Log In</Text>
+                            <View style={styles.avatar}>
+                                <TouchableOpacity
+                                    style={styles.addBtn}
+                                    activeOpacity={0.7}
+                                >
+                                    <AntDesign
+                                        name="pluscircleo"
+                                        size={25}
+                                        color="#FF6C00"
+                                    />
+                                </TouchableOpacity>
+                            </View>
+
+                            <Text style={styles.title}>Registration</Text>
                             <TextInput
-                                style={{ ...styles.input, marginBottom: 16 }}
+                                style={styles.input}
+                                placeholder="Login"
+                                value={userData.login}
+                                onFocus={() => setIsShowKeyboard(true)}
+                                onChangeText={(value) =>
+                                    setUserData((prewState) => ({
+                                        ...prewState,
+                                        login: value,
+                                    }))
+                                }
+                            />
+                            <TextInput
+                                style={styles.input}
                                 placeholder="Email"
-                                keyboardType="default"
                                 value={userData.email}
                                 onFocus={() => setIsShowKeyboard(true)}
                                 onChangeText={(value) =>
@@ -88,7 +113,6 @@ export const LoginScreen = ({ navigation }) => {
                                     secureTextEntry={securePassword}
                                     style={styles.input}
                                     placeholder="Password"
-                                    keyboardType="default"
                                     value={userData.password}
                                     onFocus={() => setIsShowKeyboard(true)}
                                     onChangeText={(value) =>
@@ -108,33 +132,34 @@ export const LoginScreen = ({ navigation }) => {
                                     </Text>
                                 </TouchableOpacity>
                             </View>
-                        </KeyboardAvoidingView>
 
-                        {!isShowKeyboard && (
-                            <>
-                                <TouchableOpacity
-                                    style={styles.loginBtn}
-                                    activeOpacity={0.7}
-                                    onPress={loginHandler}
-                                >
-                                    <Text style={styles.btnLabel}>Log In</Text>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        navigation.navigate("Register");
-                                    }}
-                                    activeOpacity={0.7}
-                                >
-                                    <Text style={styles.text}>
-                                        Do not have an account? Register
-                                    </Text>
-                                </TouchableOpacity>
-                            </>
-                        )}
-                    </View>
-                </View>
-            </ImageBackground>
+                            {!isShowKeyboard && (
+                                <>
+                                    <TouchableOpacity
+                                        style={styles.registerBtn}
+                                        activeOpacity={0.7}
+                                        onPress={registerHandler}
+                                    >
+                                        <Text style={styles.btnLabel}>
+                                            Register now
+                                        </Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            navigation.navigate("Login");
+                                        }}
+                                        activeOpacity={0.7}
+                                    >
+                                        <Text style={styles.text}>
+                                            Already have an account? Enter
+                                        </Text>
+                                    </TouchableOpacity>
+                                </>
+                            )}
+                        </View>
+                    </KeyboardAvoidingView>
+                </ImageBackground>
+            </View>
         </TouchableWithoutFeedback>
     );
 };
@@ -142,23 +167,45 @@ export const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: "flex-end",
     },
 
     image: {
         flex: 1,
+        resizeMode: "cover",
         justifyContent: "flex-end",
     },
 
     form: {
+        position: "relative",
         backgroundColor: "#fff",
         borderTopLeftRadius: 25,
         borderTopRightRadius: 25,
     },
 
+    avatar: {
+        position: "absolute",
+        top: -60,
+        left: 128,
+        width: 120,
+        height: 120,
+        backgroundColor: "#F6F6F6",
+        borderRadius: 16,
+    },
+
+    addBtn: {
+        position: "absolute",
+        left: 107.5,
+        top: 80,
+
+        width: 26,
+        height: 26,
+        backgroundColor: "#fff",
+        borderRadius: 13,
+    },
+
     title: {
         alignSelf: "center",
-        marginTop: 32,
+        marginTop: 92,
         marginBottom: 32,
         fontSize: 30,
         fontFamily: "robotoBold",
@@ -167,6 +214,7 @@ const styles = StyleSheet.create({
     input: {
         height: 51,
         marginHorizontal: 16,
+        marginBottom: 16,
         padding: 16,
         fontSize: 16,
         lineHeight: 1.19,
@@ -175,7 +223,6 @@ const styles = StyleSheet.create({
         placeholderTextColor: "#BDBDBD",
         borderRadius: 8,
         backgroundColor: "#F6F6F6",
-        fontFamily: "robotoRegular",
     },
 
     passwordBtn: {
@@ -192,7 +239,8 @@ const styles = StyleSheet.create({
         color: "#1B4371",
     },
 
-    loginBtn: {
+    registerBtn: {
+        marginTop: 44,
         marginBottom: 16,
         marginHorizontal: 16,
         borderRadius: 100,
@@ -211,6 +259,5 @@ const styles = StyleSheet.create({
         alignSelf: "center",
         color: "#1B4371",
         fontSize: 16,
-        marginBottom: 144,
     },
 });
