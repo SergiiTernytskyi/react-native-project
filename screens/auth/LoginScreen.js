@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
     StyleSheet,
     Text,
@@ -11,6 +11,7 @@ import {
     TouchableWithoutFeedback,
     Keyboard,
 } from "react-native";
+import { UserContext } from "../../App";
 
 const backgroundImage = require("../../assets/images/background.jpg");
 const initialUserData = {
@@ -22,6 +23,8 @@ export const LoginScreen = ({ navigation }) => {
     const [isShowKeyboard, setIsShowKeyboard] = useState(false);
     const [userData, setUserData] = useState(initialUserData);
     const [securePassword, setSecurePassword] = useState(true);
+
+    const value = useContext(UserContext);
 
     useEffect(() => {
         const showKeyboard = Keyboard.addListener("keyboardDidShow", () => {
@@ -45,6 +48,7 @@ export const LoginScreen = ({ navigation }) => {
     const loginHandler = () => {
         hideKeyboard();
         console.log(userData);
+        value();
         setUserData(initialUserData);
     };
 

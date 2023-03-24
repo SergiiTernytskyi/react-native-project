@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
     StyleSheet,
     Text,
@@ -14,6 +14,8 @@ import {
 
 import { AntDesign } from "@expo/vector-icons";
 
+import { UserContext } from "../../App";
+
 const backgroundImage = require("../../assets/images/background.jpg");
 const initialUserData = {
     login: "",
@@ -22,10 +24,11 @@ const initialUserData = {
 };
 
 export const RegistrationScreen = ({ navigation }) => {
-    console.log(Platform.OS);
     const [isShowKeyboard, setIsShowKeyboard] = useState(false);
     const [userData, setUserData] = useState(initialUserData);
     const [securePassword, setSecurePassword] = useState(true);
+
+    const value = useContext(UserContext);
 
     useEffect(() => {
         const showKeyboard = Keyboard.addListener("keyboardDidShow", () => {
@@ -49,6 +52,7 @@ export const RegistrationScreen = ({ navigation }) => {
     const registerHandler = () => {
         hideKeyboard();
         console.log(userData);
+        value();
         setUserData(initialUserData);
     };
 

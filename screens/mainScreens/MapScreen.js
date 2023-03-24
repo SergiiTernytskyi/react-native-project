@@ -1,9 +1,9 @@
 import { StyleSheet, Text, View } from "react-native";
 
-export const PostsScreen = () => {
+export const MapScreen = () => {
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Posts Screen</Text>
+            <Text style={styles.title}>Map Screen</Text>
         </View>
     );
 };
