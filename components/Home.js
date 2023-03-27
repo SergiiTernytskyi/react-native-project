@@ -1,64 +1,39 @@
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Feather } from "@expo/vector-icons";
 
 import { CreatePostScreen } from "../screens/mainScreens/CreatePostScreen";
-import { PostsScreen } from "../screens/mainScreens/PostsScreen";
 import { UserProfileScreen } from "../screens/mainScreens/UserProfileScreen";
-
-import { Feather } from "@expo/vector-icons";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
-import { UserContext } from "../App";
-import { useContext } from "react";
+import { DefaultPostsScreen } from "../screens/mainScreens/DefaultPostsScreen";
 
 const MainTab = createBottomTabNavigator();
 
-export const Main = () => {
-    const value = useContext(UserContext);
-
+export const Home = () => {
     return (
         <MainTab.Navigator
             screenOptions={{
                 tabBarShowLabel: false,
                 tabBarStyle: styles.tabNavigation,
+                tabBarIcon: () => (
+                    <Feather
+                        name="grid"
+                        size={24}
+                        color={"rgba(33, 33, 33, 0.8)"}
+                    />
+                ),
             }}
         >
             <MainTab.Screen
-                name="Posts"
-                component={PostsScreen}
+                name="DefaultPostsScreen"
+                component={DefaultPostsScreen}
                 options={{
-                    title: "Posts",
-                    headerStyle: {
-                        backgroundColor: "#fff",
-                    },
-                    headerTintColor: "#212121",
-                    headerTitleStyle: {
-                        fontFamily: "robotoBold",
-                    },
-                    headerTitleAlign: "center",
-                    headerRight: () => (
-                        <TouchableOpacity
-                            style={styles.backBtn}
-                            activeOpacity={0.7}
-                            onPress={() => {
-                                value();
-                            }}
-                        >
-                            <Feather name="log-out" size={24} color="#BDBDBD" />
-                        </TouchableOpacity>
-                    ),
-
-                    tabBarIcon: () => (
-                        <Feather
-                            name="grid"
-                            size={24}
-                            color={"rgba(33, 33, 33, 0.8)"}
-                        />
-                    ),
+                    headerShown: false,
                 }}
             />
             <MainTab.Screen
                 name="Create"
                 component={CreatePostScreen}
-                options={{
+                options={({ navigation }) => ({
                     title: "Create post",
                     headerStyle: {
                         backgroundColor: "#fff",
@@ -72,7 +47,9 @@ export const Main = () => {
                         <TouchableOpacity
                             style={styles.backBtn}
                             activeOpacity={0.7}
-                            onPress={() => alert("This is a button!")}
+                            onPress={() => {
+                                navigation.navigate("DefaultPostsScreen");
+                            }}
                         >
                             <Feather
                                 name="arrow-left"
@@ -94,12 +71,12 @@ export const Main = () => {
                     ),
 
                     tabBarStyle: { display: "none" },
-                }}
+                })}
             />
             <MainTab.Screen
                 name="Profile"
                 component={UserProfileScreen}
-                options={{
+                options={() => ({
                     headerShown: false,
 
                     headerStyle: {
@@ -117,7 +94,7 @@ export const Main = () => {
                             color={"rgba(33, 33, 33, 0.8)"}
                         />
                     ),
-                }}
+                })}
             />
         </MainTab.Navigator>
     );

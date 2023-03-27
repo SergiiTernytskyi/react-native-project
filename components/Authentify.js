@@ -2,7 +2,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { LoginScreen } from "../screens/auth/LoginScreen";
 import { RegistrationScreen } from "../screens/auth/RegistrationScreen";
-import { HomeScreen } from "../screens/mainScreens/Home";
+import { Home } from "./Home";
 
 const AuthStack = createNativeStackNavigator();
 
@@ -21,7 +21,7 @@ export const Authentify = () => {
             />
             <AuthStack.Screen
                 name="Home"
-                component={HomeScreen}
+                component={Home}
                 options={{ headerShown: false }}
             />
         </AuthStack.Navigator>

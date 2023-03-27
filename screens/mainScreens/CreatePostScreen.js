@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
+    Button,
     KeyboardAvoidingView,
     StyleSheet,
     Text,
@@ -8,6 +9,9 @@ import {
     View,
 } from "react-native";
 
+import { Camera } from "expo-camera";
+import * as Location from "expo-location";
+
 import { Feather } from "@expo/vector-icons";
 
 const initialPost = {
@@ -15,8 +19,66 @@ const initialPost = {
     postLocation: "",
 };
 
-export const CreatePostScreen = () => {
+export const CreatePostScreen = ({ navigation }) => {
     const [post, setPost] = useState(initialPost);
+    const [permission, requestPermission] = Camera.useCameraPermissions();
+    const [camera, setCamera] = useState(null);
+    const [photo, setPhoto] = useState(null);
+
+    useEffect(() => {
+        (async () => {
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== "granted") {
+                setErrorMsg("Permission to access location was denied");
+                return;
+            }
+        })();
+    }, []);
+
+    if (!permission) {
+        return <View />;
+    }
+
+    if (!permission.granted) {
+        return (
+            <View style={styles.container}>
+                <Text style={{ textAlign: "center" }}>
+                    We need your permission to show the camera
+                </Text>
+                <Button onPress={requestPermission} title="grant permission" />
+            </View>
+        );
+    }
+
+    const takePhoto = async () => {
+        const { uri } = await camera.takePictureAsync();
+        setPhoto(uri);
+    };
+
+    const sendPost = async () => {
+        const { postName, postLocation } = post;
+
+        if (!photo || post.postName === "" || post.postLocation === "") {
+            return;
+        }
+
+        const {
+            coords: { latitude, longitude },
+        } = await Location.getCurrentPositionAsync();
+
+        navigation.navigate("DefaultPostsScreen", {
+            screen: "PostsScreen",
+            params: {
+                photo,
+                postName,
+                postLocation,
+                latitude,
+                longitude,
+            },
+        });
+        setPost(initialPost);
+        setPhoto(null);
+    };
 
     return (
         <View style={styles.container}>
@@ -25,8 +87,18 @@ export const CreatePostScreen = () => {
                     behavior={Platform.OS === "ios" ? "padding" : ""}
                     keyboardVerticalOffset={0}
                 >
-                    <View style={styles.camera}></View>
-                    <Text style={styles.info}>Load the photo</Text>
+                    <Camera style={styles.camera} ref={setCamera}>
+                        <TouchableOpacity
+                            style={styles.cameraBtn}
+                            onPress={takePhoto}
+                        >
+                            <Feather name="camera" size={24} color="black" />
+                        </TouchableOpacity>
+                    </Camera>
+
+                    <Text style={styles.info}>
+                        {!photo ? "Load the photo" : "Edit the photo"}
+                    </Text>
 
                     <View>
                         <TextInput
@@ -34,21 +106,63 @@ export const CreatePostScreen = () => {
                             placeholder="Name..."
                             keyboardType="default"
                             value={post.postName}
+                            onChangeText={(value) =>
+                                setPost((prewState) => ({
+                                    ...prewState,
+                                    postName: value,
+                                }))
+                            }
                         />
+                        <View style={styles.locationWrapper}>
+                            <Feather
+                                name="map-pin"
+                                size={22}
+                                color="#BDBDBD"
+                                style={styles.locationIcon}
+                            />
 
-                        <TextInput
-                            style={{ ...styles.input, marginTop: 16 }}
-                            placeholder="Location..."
-                            keyboardType="default"
-                            value={post.postLocation}
-                        />
+                            <TextInput
+                                style={{
+                                    ...styles.input,
+                                    ...styles.locationText,
+                                }}
+                                placeholder="Location..."
+                                keyboardType="default"
+                                value={post.postLocation}
+                                onChangeText={(value) =>
+                                    setPost((prewState) => ({
+                                        ...prewState,
+                                        postLocation: value,
+                                    }))
+                                }
+                            />
+                        </View>
 
                         <TouchableOpacity
-                            style={styles.sendBtn}
+                            style={{
+                                ...styles.sendBtn,
+                                backgroundColor:
+                                    !photo ||
+                                    post.postName === "" ||
+                                    post.postLocation === ""
+                                        ? "#F6F6F6"
+                                        : "#FF6C00",
+                            }}
                             activeOpacity={0.7}
-                            // onPress={loginHandler}
+                            onPress={sendPost}
                         >
-                            <Text style={styles.btnLabel}>Publish</Text>
+                            <Text
+                                style={{
+                                    ...styles.btnLabel,
+                                    color:
+                                        post.postName === "" ||
+                                        post.postLocation === ""
+                                            ? "#BDBDBD"
+                                            : "#FFFFFF",
+                                }}
+                            >
+                                Publish
+                            </Text>
                         </TouchableOpacity>
                     </View>
                 </KeyboardAvoidingView>
@@ -72,31 +186,57 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: "space-between",
-        backgroundColor: "#fff",
+        marginHorizontal: 16,
     },
 
     camera: {
+        justifyContent: "center",
+        alignItems: "center",
         marginTop: 32,
-        marginHorizontal: 16,
         height: 240,
-        backgroundColor: "#F6F6F6",
-        borderColor: "#E8E8E8",
-        borderWidth: 1,
         borderRadius: 8,
+    },
+
+    cameraBtn: {
+        position: "absolute",
+        width: 60,
+        height: 60,
+        justifyContent: "center",
+        alignItems: "center",
+        borderRadius: 30,
+        backgroundColor: "#F6F6F6",
     },
 
     info: {
         marginTop: 8,
-        marginHorizontal: 16,
         fontSize: 16,
         fontFamily: "robotoBold",
         color: "#BDBDBD",
     },
 
+    locationWrapper: {
+        position: "relative",
+        flexDirection: "row",
+        alignItems: "center",
+        marginTop: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: "#E8E8E8",
+    },
+
+    locationText: {
+        marginLeft: 32,
+    },
+
+    locationIcon: {
+        position: "absolute",
+        left: 0,
+        top: 12,
+    },
+
     input: {
         height: 50,
-        marginHorizontal: 16,
-        padding: 16,
+        paddingTop: 16,
+        paddingBottom: 16,
         fontSize: 16,
         lineHeight: 1.19,
         borderBottomWidth: 1,
@@ -105,11 +245,14 @@ const styles = StyleSheet.create({
         fontFamily: "robotoRegular",
     },
 
+    inputLocation: {
+        marginTop: 16,
+        paddingLeft: 28,
+    },
+
     sendBtn: {
         marginTop: 32,
-        marginHorizontal: 16,
         borderRadius: 100,
-        backgroundColor: "#FF6C00",
         height: 52,
         padding: 16,
     },
@@ -117,7 +260,6 @@ const styles = StyleSheet.create({
     btnLabel: {
         alignSelf: "center",
         fontSize: 16,
-        color: "#fff",
     },
 
     deletePost: {

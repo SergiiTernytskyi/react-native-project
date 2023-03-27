@@ -1,6 +1,6 @@
 import { Authentify } from "../components/Authentify";
-import { HomeScreen } from "../screens/mainScreens/Home";
+import { Home } from "../components/Home";
 
 export const useRoute = (isAuthorised) => {
-    return isAuthorised ? <HomeScreen /> : <Authentify />;
+    return isAuthorised ? <Home /> : <Authentify />;
 };

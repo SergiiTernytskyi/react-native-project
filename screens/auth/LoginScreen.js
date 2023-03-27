@@ -47,7 +47,6 @@ export const LoginScreen = ({ navigation }) => {
 
     const loginHandler = () => {
         hideKeyboard();
-        console.log(userData);
         value();
         setUserData(initialUserData);
     };
