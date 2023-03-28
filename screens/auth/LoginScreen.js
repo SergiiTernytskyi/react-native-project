@@ -11,7 +11,9 @@ import {
     TouchableWithoutFeedback,
     Keyboard,
 } from "react-native";
-import { UserContext } from "../../App";
+
+import { signIn } from "../../redux/auth/authOperations";
+import { useDispatch } from "react-redux";
 
 const backgroundImage = require("../../assets/images/background.jpg");
 const initialUserData = {
@@ -24,7 +26,7 @@ export const LoginScreen = ({ navigation }) => {
     const [userData, setUserData] = useState(initialUserData);
     const [securePassword, setSecurePassword] = useState(true);
 
-    const value = useContext(UserContext);
+    const dispath = useDispatch();
 
     useEffect(() => {
         const showKeyboard = Keyboard.addListener("keyboardDidShow", () => {
@@ -47,7 +49,8 @@ export const LoginScreen = ({ navigation }) => {
 
     const loginHandler = () => {
         hideKeyboard();
-        value();
+        dispath(signIn(userData));
+
         setUserData(initialUserData);
     };
 
@@ -71,14 +74,17 @@ export const LoginScreen = ({ navigation }) => {
                         >
                             <Text style={styles.title}>Log In</Text>
                             <TextInput
-                                style={{ ...styles.input, marginBottom: 16 }}
+                                style={{
+                                    ...styles.input,
+                                    ...styles.emailInput,
+                                }}
                                 placeholder="Email"
                                 keyboardType="default"
                                 value={userData.email}
                                 onFocus={() => setIsShowKeyboard(true)}
                                 onChangeText={(value) =>
-                                    setUserData((prewState) => ({
-                                        ...prewState,
+                                    setUserData((prevState) => ({
+                                        ...prevState,
                                         email: value,
                                     }))
                                 }
@@ -92,8 +98,8 @@ export const LoginScreen = ({ navigation }) => {
                                     value={userData.password}
                                     onFocus={() => setIsShowKeyboard(true)}
                                     onChangeText={(value) =>
-                                        setUserData((prewState) => ({
-                                            ...prewState,
+                                        setUserData((prevState) => ({
+                                            ...prevState,
                                             password: value,
                                         }))
                                     }
@@ -172,7 +178,6 @@ const styles = StyleSheet.create({
         marginHorizontal: 16,
         padding: 16,
         fontSize: 16,
-        lineHeight: 1.19,
         borderWidth: 1,
         borderColor: "#E8E8E8",
         placeholderTextColor: "#BDBDBD",
@@ -180,6 +185,8 @@ const styles = StyleSheet.create({
         backgroundColor: "#F6F6F6",
         fontFamily: "robotoRegular",
     },
+
+    emailInput: { marginBottom: 16 },
 
     passwordBtn: {
         position: "absolute",

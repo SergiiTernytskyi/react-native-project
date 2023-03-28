@@ -14,7 +14,8 @@ import {
 
 import { AntDesign } from "@expo/vector-icons";
 
-import { UserContext } from "../../App";
+import { signUp } from "../../redux/auth/authOperations";
+import { useDispatch } from "react-redux";
 
 const backgroundImage = require("../../assets/images/background.jpg");
 const initialUserData = {
@@ -28,7 +29,7 @@ export const RegistrationScreen = ({ navigation }) => {
     const [userData, setUserData] = useState(initialUserData);
     const [securePassword, setSecurePassword] = useState(true);
 
-    const value = useContext(UserContext);
+    const dispatch = useDispatch();
 
     useEffect(() => {
         const showKeyboard = Keyboard.addListener("keyboardDidShow", () => {
@@ -51,8 +52,8 @@ export const RegistrationScreen = ({ navigation }) => {
 
     const registerHandler = () => {
         hideKeyboard();
-        console.log(userData);
-        value();
+        dispatch(signUp(userData));
+
         setUserData(initialUserData);
     };
 
@@ -221,7 +222,6 @@ const styles = StyleSheet.create({
         marginBottom: 16,
         padding: 16,
         fontSize: 16,
-        lineHeight: 1.19,
         borderWidth: 1,
         borderColor: "#E8E8E8",
         placeholderTextColor: "#BDBDBD",
