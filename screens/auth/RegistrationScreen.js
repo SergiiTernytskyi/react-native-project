@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
     StyleSheet,
     Text,
@@ -10,6 +10,7 @@ import {
     ImageBackground,
     TouchableWithoutFeedback,
     Keyboard,
+    Image,
 } from "react-native";
 
 import { AntDesign } from "@expo/vector-icons";
@@ -22,6 +23,7 @@ const initialUserData = {
     login: "",
     email: "",
     password: "",
+    avatar: "",
 };
 
 export const RegistrationScreen = ({ navigation }) => {
@@ -54,11 +56,19 @@ export const RegistrationScreen = ({ navigation }) => {
         hideKeyboard();
         dispatch(signUp(userData));
 
+        console.log(userData);
         setUserData(initialUserData);
     };
 
     const toggleShowPassword = () => {
         setSecurePassword((prewState) => !prewState);
+    };
+
+    const addAvatar = async () => {
+        setUserData((prevState) => ({
+            ...prevState,
+            avatar: "backgroundImage",
+        }));
     };
 
     return (
@@ -75,10 +85,15 @@ export const RegistrationScreen = ({ navigation }) => {
                                 paddingBottom: isShowKeyboard ? 32 : 78,
                             }}
                         >
-                            <View style={styles.avatar}>
+                            <View style={styles.avatarWrapper}>
+                                <Image
+                                    style={styles.avatar}
+                                    source={userData.avatar}
+                                />
                                 <TouchableOpacity
                                     style={styles.addBtn}
                                     activeOpacity={0.7}
+                                    onPress={addAvatar}
                                 >
                                     <AntDesign
                                         name="pluscircleo"
@@ -187,10 +202,13 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 25,
     },
 
-    avatar: {
+    avatarWrapper: {
         position: "absolute",
         top: -60,
-        left: 128,
+        alignSelf: "center",
+    },
+
+    avatar: {
         width: 120,
         height: 120,
         backgroundColor: "#F6F6F6",

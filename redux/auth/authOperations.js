@@ -9,18 +9,25 @@ import { auth } from "../../firebase/config";
 import { signOutChange, stateChange, updateUser } from "./authSlice";
 
 export const signUp =
-    ({ login, email, password }) =>
+    ({ login, email, password, avatar }) =>
     async (dispatch, getState) => {
         try {
             await createUserWithEmailAndPassword(auth, email, password);
 
             await updateProfile(auth.currentUser, {
                 displayName: login,
+                photoURL: avatar,
             });
 
-            const user = auth.currentUser;
+            const user = await auth.currentUser;
 
-            dispatch(updateUser({ userId: user.uid, name: user.displayName }));
+            dispatch(
+                updateUser({
+                    userId: user.uid,
+                    name: user.displayName,
+                    avatar: user.photoURL,
+                })
+            );
         } catch (error) {
             console.log(error.message);
         }

@@ -1,6 +1,10 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { Feather } from "@expo/vector-icons";
+import { useEffect } from "react";
+import { useState } from "react";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "../firebase/config";
 
 export const PostItem = ({
     name,
@@ -9,7 +13,22 @@ export const PostItem = ({
     navigation,
     latitude,
     longitude,
+    id,
 }) => {
+    const [allComments, setAllComments] = useState([]);
+
+    useEffect(() => {
+        getAllComments();
+    }, []);
+
+    const getAllComments = async () => {
+        await onSnapshot(collection(db, "posts", id, "messages"), (data) => {
+            setAllComments(
+                data.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
+            );
+        });
+    };
+
     return (
         <View>
             <Image style={styles.postImage} source={{ uri: image }} />
@@ -19,14 +38,18 @@ export const PostItem = ({
                     <TouchableOpacity
                         style={{ ...styles.metaBtn, ...styles.commentBtn }}
                         activeOpacity={0.7}
-                        onPress={() => navigation.navigate("CommentsScreen")}
+                        onPress={() =>
+                            navigation.navigate("CommentsScreen", { id, image })
+                        }
                     >
                         <Feather
                             name="message-circle"
                             size={24}
                             color="#BDBDBD"
                         />
-                        <Text style={styles.postMetaText}>0</Text>
+                        <Text style={styles.postMetaText}>
+                            {allComments.length}
+                        </Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -63,12 +86,14 @@ const styles = StyleSheet.create({
 
     postImage: {
         marginBottom: 8,
+        marginHorizontal: 16,
         height: 240,
         borderRadius: 8,
     },
 
     postName: {
         marginBottom: 10,
+        marginHorizontal: 16,
         fontFamily: "robotoBold",
         fontSize: 16,
         color: "#212121",
@@ -78,6 +103,7 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: "row",
         justifyContent: "center",
+        marginHorizontal: 16,
     },
 
     wrap: {

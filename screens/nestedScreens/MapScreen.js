@@ -12,9 +12,6 @@ export const MapScreen = ({ route }) => {
         }
     }, [route.params]);
 
-    console.log(route.params);
-    console.log(coordinates);
-
     return (
         <View style={styles.container}>
             {coordinates && (

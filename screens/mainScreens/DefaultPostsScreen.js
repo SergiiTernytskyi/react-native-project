@@ -35,7 +35,7 @@ export const DefaultPostsScreen = () => {
                     headerTitleAlign: "center",
                     headerRight: () => (
                         <TouchableOpacity
-                            style={styles.backBtn}
+                            style={styles.logoutBtn}
                             activeOpacity={0.7}
                             onPress={logOut}
                         >
@@ -110,7 +110,7 @@ export const DefaultPostsScreen = () => {
 };
 
 const styles = StyleSheet.create({
-    backBtn: {
+    logoutBtn: {
         marginHorizontal: 16,
     },
 });

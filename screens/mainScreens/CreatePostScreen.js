@@ -9,10 +9,16 @@ import {
     View,
 } from "react-native";
 
+import { nanoid } from "nanoid";
+
 import { Camera } from "expo-camera";
 import * as Location from "expo-location";
+import { storage, db } from "../../firebase/config";
 
 import { Feather } from "@expo/vector-icons";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { addDoc, collection } from "firebase/firestore";
+import { useSelector } from "react-redux";
 
 const initialPost = {
     postName: "",
@@ -24,6 +30,8 @@ export const CreatePostScreen = ({ navigation }) => {
     const [permission, requestPermission] = Camera.useCameraPermissions();
     const [camera, setCamera] = useState(null);
     const [photo, setPhoto] = useState(null);
+
+    const { userId, name } = useSelector((state) => state.auth);
 
     useEffect(() => {
         (async () => {
@@ -55,27 +63,44 @@ export const CreatePostScreen = ({ navigation }) => {
         setPhoto(uri);
     };
 
-    const sendPost = async () => {
+    const uploadPhotoToStorage = async () => {
+        const storageRef = ref(storage, `images/${nanoid()}`);
+
+        const response = await fetch(photo);
+        const file = await response.blob();
+
+        await uploadBytes(storageRef, file);
+
+        const filePath = await getDownloadURL(storageRef);
+        return filePath;
+    };
+
+    const uploadPostToServer = async () => {
         const { postName, postLocation } = post;
 
         if (!photo || post.postName === "" || post.postLocation === "") {
             return;
         }
 
-        const {
-            coords: { latitude, longitude },
-        } = await Location.getCurrentPositionAsync();
+        const { coords } = await Location.getCurrentPositionAsync();
 
-        navigation.navigate("DefaultPostsScreen", {
-            screen: "PostsScreen",
-            params: {
-                photo,
-                postName,
-                postLocation,
-                latitude,
-                longitude,
-            },
+        const photoFile = await uploadPhotoToStorage();
+
+        await addDoc(collection(db, "posts"), {
+            photo: photoFile,
+            post: postName,
+            postLocation,
+            coords,
+            userId,
+            userName: name,
         });
+    };
+
+    const sendPost = async () => {
+        await uploadPhotoToStorage();
+        await uploadPostToServer();
+
+        navigation.navigate("DefaultPostsScreen");
         setPost(initialPost);
         setPhoto(null);
     };
@@ -238,7 +263,6 @@ const styles = StyleSheet.create({
         paddingTop: 16,
         paddingBottom: 16,
         fontSize: 16,
-        lineHeight: 1.19,
         borderBottomWidth: 1,
         borderBottomColor: "#E8E8E8",
         placeholderTextColor: "#BDBDBD",
