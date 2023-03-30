@@ -42,7 +42,13 @@ export const signIn =
                 email,
                 password
             );
-            dispatch(updateUser({ userId: user.uid, name: user.displayName }));
+            dispatch(
+                updateUser({
+                    userId: user.uid,
+                    name: user.displayName,
+                    avatar: user.photoURL,
+                })
+            );
         } catch (error) {
             console.log(error.message);
         }
@@ -54,6 +60,7 @@ export const authStateChange = () => async (dispatch, getState) => {
             const updateProfile = {
                 userId: user.uid,
                 name: user.displayName,
+                avatar: user.photoURL,
             };
             dispatch(updateUser(updateProfile));
             dispatch(stateChange({ stateChange: true }));

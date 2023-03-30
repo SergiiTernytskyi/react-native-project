@@ -3,7 +3,14 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useEffect } from "react";
 import { useState } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
+import {
+    collection,
+    doc,
+    getDoc,
+    increment,
+    onSnapshot,
+    updateDoc,
+} from "firebase/firestore";
 import { db } from "../firebase/config";
 
 export const PostItem = ({
@@ -16,9 +23,11 @@ export const PostItem = ({
     id,
 }) => {
     const [allComments, setAllComments] = useState([]);
+    const [post, setPost] = useState(null);
 
     useEffect(() => {
         getAllComments();
+        getPost();
     }, []);
 
     const getAllComments = async () => {
@@ -26,6 +35,23 @@ export const PostItem = ({
             setAllComments(
                 data.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
             );
+        });
+    };
+
+    const getPost = async () => {
+        const postRef = doc(db, "posts/", id);
+        const post = await getDoc(postRef);
+
+        setPost(post.data());
+    };
+
+    const likeHandler = async () => {
+        getPost();
+
+        const postsRef = doc(db, "posts", id);
+
+        await updateDoc(postsRef, {
+            likes: increment(1),
         });
     };
 
@@ -55,9 +81,12 @@ export const PostItem = ({
                     <TouchableOpacity
                         style={styles.metaBtn}
                         activeOpacity={0.7}
+                        onPress={likeHandler}
                     >
                         <Feather name="thumbs-up" size={24} color="#FF6C00" />
-                        <Text style={styles.postMetaText}>0</Text>
+                        <Text style={styles.postMetaText}>
+                            {post ? post.likes : 0}
+                        </Text>
                     </TouchableOpacity>
                 </View>
 
@@ -113,6 +142,7 @@ const styles = StyleSheet.create({
 
     metaBtn: {
         flexDirection: "row",
+        alignItems: "baseline",
     },
 
     commentBtn: {

@@ -12,15 +12,18 @@ import {
 } from "react-native";
 
 import { Feather } from "@expo/vector-icons";
-import { db } from "../../firebase/config";
+import { auth, db } from "../../firebase/config";
 import { addDoc, collection, onSnapshot } from "firebase/firestore";
 import { useEffect } from "react";
+import { useSelector } from "react-redux";
 
 export const CommentsScreen = ({ route }) => {
     const [comment, setComment] = useState("");
     const [allComments, setAllComments] = useState([]);
+    const [user, setUser] = useState(null);
 
     const { id, image } = route.params;
+    const { avatar, userId } = useSelector((state) => state.auth);
 
     useEffect(() => {
         getAllComments();
@@ -35,6 +38,9 @@ export const CommentsScreen = ({ route }) => {
                 );
             }
         );
+
+        const user = auth.currentUser;
+        setUser(user);
     };
 
     const commentHandler = async () => {
@@ -60,12 +66,30 @@ export const CommentsScreen = ({ route }) => {
                     data={sortedComments}
                     keyExtractor={(item) => item.id.toString()}
                     renderItem={({ item }) => (
-                        <View>
+                        <View
+                            style={{
+                                flexDirection:
+                                    user.uid === userId ? "row-reverse" : "row",
+                                alignItems: "flex-start",
+                            }}
+                        >
                             <Image
-                                style={styles.userImage}
-                                source={{ uri: image }}
+                                style={{
+                                    ...styles.userImage,
+                                    marginLeft: user.uid === userId ? 16 : 0,
+                                    marginRight: user.uid === userId ? 0 : 16,
+                                }}
+                                source={{ uri: avatar }}
                             />
-                            <View style={styles.commentBox}>
+                            <View
+                                style={{
+                                    ...styles.commentBox,
+                                    borderTopRightRadius:
+                                        user.uid === userId ? 0 : 6,
+                                    borderTopLeftRadius:
+                                        user.uid === userId ? 6 : 0,
+                                }}
+                            >
                                 <Text style={styles.commentText}>
                                     {item.comment}
                                 </Text>
@@ -115,7 +139,12 @@ const styles = StyleSheet.create({
         borderRadius: 8,
     },
 
-    userImage: {},
+    userImage: {
+        marginRight: 16,
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+    },
 
     input: {
         height: 50,
@@ -146,22 +175,15 @@ const styles = StyleSheet.create({
 
     commentBox: {
         marginBottom: 24,
-        width: 300,
+        width: "87%",
         backgroundColor: "rgba(0, 0, 0, 0.03)",
-        borderRadius: 6,
+        borderBottomLeftRadius: 6,
+        borderBottomRightRadius: 6,
         padding: 16,
     },
 
     commentText: {
         fontSize: 13,
         fontFamily: "robotoRegular",
-    },
-
-    title: {
-        alignSelf: "center",
-        marginTop: 32,
-        marginBottom: 32,
-        fontSize: 30,
-        fontFamily: "robotoBold",
     },
 });

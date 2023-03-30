@@ -93,6 +93,7 @@ export const CreatePostScreen = ({ navigation }) => {
             coords,
             userId,
             userName: name,
+            likes: 0,
         });
     };
 

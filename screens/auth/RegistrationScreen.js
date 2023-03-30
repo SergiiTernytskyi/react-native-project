@@ -21,7 +21,7 @@ import { signUp } from "../../redux/auth/authOperations";
 import { useDispatch } from "react-redux";
 
 import * as DocumentPicker from "expo-document-picker";
-import { storage } from "../../firebase/config";
+import { auth, storage } from "../../firebase/config";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 const backgroundImage = require("../../assets/images/background.jpg");
@@ -89,11 +89,9 @@ export const RegistrationScreen = ({ navigation }) => {
 
             const avatarFile = await uploadAvatarToStorage(res.uri);
 
-            console.log(avatarFile);
-
             setUserData((prevState) => ({
                 ...prevState,
-                avatar: `${avatarFile}`,
+                avatar: avatarFile,
             }));
         } catch (error) {
             console.log(error.message);
