@@ -1,6 +1,7 @@
 import { collection, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, Image, StyleSheet, Text, View } from "react-native";
+import { useSelector } from "react-redux";
 
 import { PostItem } from "../../components/PostItem";
 import { auth, db } from "../../firebase/config";
@@ -20,10 +21,12 @@ export const PostsScreen = ({ navigation }) => {
         getPosts();
     }, []);
 
+    const { avatar } = useSelector((state) => state.auth);
+
     return (
         <View style={styles.container}>
             <View style={styles.avatarWrapper}>
-                <View style={styles.avatarImg}></View>
+                <Image style={styles.avatarImg} source={{ uri: avatar }} />
                 <View>
                     <Text style={styles.userName}>{user.displayName}</Text>
                     <Text style={styles.userEmail}>{user.email}</Text>
@@ -63,7 +66,7 @@ const styles = StyleSheet.create({
     },
 
     avatarImg: {
-        backgroundColor: "#f00",
+        backgroundColor: "#E8E8E8",
         width: 60,
         height: 60,
         borderRadius: 16,

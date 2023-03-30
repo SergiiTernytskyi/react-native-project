@@ -13,10 +13,16 @@ import {
     Image,
 } from "react-native";
 
+import { nanoid } from "nanoid";
+
 import { AntDesign } from "@expo/vector-icons";
 
 import { signUp } from "../../redux/auth/authOperations";
 import { useDispatch } from "react-redux";
+
+import * as DocumentPicker from "expo-document-picker";
+import { storage } from "../../firebase/config";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 const backgroundImage = require("../../assets/images/background.jpg");
 const initialUserData = {
@@ -56,7 +62,6 @@ export const RegistrationScreen = ({ navigation }) => {
         hideKeyboard();
         dispatch(signUp(userData));
 
-        console.log(userData);
         setUserData(initialUserData);
     };
 
@@ -64,11 +69,35 @@ export const RegistrationScreen = ({ navigation }) => {
         setSecurePassword((prewState) => !prewState);
     };
 
+    const uploadAvatarToStorage = async (fileAvatar) => {
+        const storageRef = ref(storage, `avatars/${nanoid()}`);
+
+        const response = await fetch(fileAvatar);
+        const file = await response.blob();
+        console.log(file);
+
+        await uploadBytes(storageRef, file);
+
+        const filePath = await getDownloadURL(storageRef);
+
+        return filePath;
+    };
+
     const addAvatar = async () => {
-        setUserData((prevState) => ({
-            ...prevState,
-            avatar: "backgroundImage",
-        }));
+        try {
+            const res = await DocumentPicker.getDocumentAsync();
+
+            const avatarFile = await uploadAvatarToStorage(res.uri);
+
+            console.log(avatarFile);
+
+            setUserData((prevState) => ({
+                ...prevState,
+                avatar: `${avatarFile}`,
+            }));
+        } catch (error) {
+            console.log(error.message);
+        }
     };
 
     return (
@@ -86,10 +115,18 @@ export const RegistrationScreen = ({ navigation }) => {
                             }}
                         >
                             <View style={styles.avatarWrapper}>
-                                <Image
-                                    style={styles.avatar}
-                                    source={userData.avatar}
-                                />
+                                {userData.avatar ? (
+                                    <Image
+                                        style={styles.avatar}
+                                        source={{ uri: userData.avatar }}
+                                    />
+                                ) : (
+                                    <Image
+                                        style={styles.avatar}
+                                        source={null}
+                                    />
+                                )}
+
                                 <TouchableOpacity
                                     style={styles.addBtn}
                                     activeOpacity={0.7}
@@ -206,12 +243,13 @@ const styles = StyleSheet.create({
         position: "absolute",
         top: -60,
         alignSelf: "center",
+        backgroundColor: "#F6F6F6",
+        borderRadius: 16,
     },
 
     avatar: {
         width: 120,
         height: 120,
-        backgroundColor: "#F6F6F6",
         borderRadius: 16,
     },
 

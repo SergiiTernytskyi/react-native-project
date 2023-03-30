@@ -2,6 +2,7 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import {
     FlatList,
+    Image,
     ImageBackground,
     StyleSheet,
     Text,
@@ -21,7 +22,7 @@ const backgroundImage = require("../../assets/images/background.jpg");
 export const UserProfileScreen = ({ navigation }) => {
     const [userPosts, setUserPosts] = useState([]);
 
-    const { userId, name } = useSelector((state) => state.auth);
+    const { userId, name, avatar } = useSelector((state) => state.auth);
 
     const getUserPost = async () => {
         const postsRef = collection(db, "posts");
@@ -51,7 +52,7 @@ export const UserProfileScreen = ({ navigation }) => {
         <View style={styles.container}>
             <ImageBackground source={backgroundImage} style={styles.image}>
                 <View style={styles.form}>
-                    <View style={styles.avatar}></View>
+                    <Image style={styles.avatar} source={{ uri: avatar }} />
                     <TouchableOpacity
                         style={styles.logoutBtn}
                         activeOpacity={0.7}
