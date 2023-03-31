@@ -9,8 +9,6 @@ import {
     View,
 } from "react-native";
 
-import { nanoid } from "nanoid";
-
 import { Camera } from "expo-camera";
 import * as Location from "expo-location";
 import { storage, db } from "../../firebase/config";
@@ -64,7 +62,7 @@ export const CreatePostScreen = ({ navigation }) => {
     };
 
     const uploadPhotoToStorage = async () => {
-        const storageRef = ref(storage, `images/${nanoid()}`);
+        const storageRef = ref(storage, `images/post${Date.now().toString()}`);
 
         const response = await fetch(photo);
         const file = await response.blob();

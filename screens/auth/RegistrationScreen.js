@@ -13,15 +13,13 @@ import {
     Image,
 } from "react-native";
 
-import { nanoid } from "nanoid";
-
 import { AntDesign } from "@expo/vector-icons";
 
 import { signUp } from "../../redux/auth/authOperations";
 import { useDispatch } from "react-redux";
 
 import * as DocumentPicker from "expo-document-picker";
-import { auth, storage } from "../../firebase/config";
+import { storage } from "../../firebase/config";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 const backgroundImage = require("../../assets/images/background.jpg");
@@ -70,11 +68,13 @@ export const RegistrationScreen = ({ navigation }) => {
     };
 
     const uploadAvatarToStorage = async (fileAvatar) => {
-        const storageRef = ref(storage, `avatars/${nanoid()}`);
+        const storageRef = ref(
+            storage,
+            `avatars/avatar${Date.now().toString()}`
+        );
 
         const response = await fetch(fileAvatar);
         const file = await response.blob();
-        console.log(file);
 
         await uploadBytes(storageRef, file);
 
